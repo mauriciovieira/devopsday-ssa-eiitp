@@ -1,0 +1,26 @@
+{
+  "name": "devopsday-ssa-eiitp",
+  "version": "1.0.0",
+  "description": "Everybody is in the place?! Let's go!",
+  "main": "index.js",
+  "scripts": {
+    "start": "live-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mauriciovieira/devopsday-ssa-eiitp.git"
+  },
+  "keywords": [
+    "ansible",
+    "remark.js"
+  ],
+  "author": "Mauricio Vieira",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mauriciovieira/devopsday-ssa-eiitp/issues"
+  },
+  "homepage": "https://github.com/mauriciovieira/devopsday-ssa-eiitp#readme",
+  "dependencies": {
+    "live-server": "^1.2.0"
+  }
+}

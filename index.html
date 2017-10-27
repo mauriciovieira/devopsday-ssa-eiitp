@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Everybody is in the place?! Let's go!</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Everybody is in the place?! Let's go!
+
+---
+
+# Agenda
+
+1. A bit of history
+2. Ansible
+3. eiitp
+
+
+---
+
+# A bit of history
+
+???
+
+- IM/UFBA - shell script
+- SaferNet / capistrano
+- SERPRO
+- Thoughtworks - chef? or Puppet
+- Codeminer42 - chefsolo
+- Dafiti - vagrant for local / dunno on premises
+- Voxy - ansible for pairing stations / puppet on the servers
+- Other projects: docker
+
+---
+
+# Ansible
+
+- playbooks
+- inventory
+- hosts
+- roles
+
+???
+
+http://highscalability.com/blog/2012/4/18/ansible-a-simple-model-driven-configuration-management-and-c.html
+
+> One of the main goals for Playbooks is to keep them free of programming-like syntax and nesting, so they are easy to review and audit. Again, the motive behind Ansible is "infrastructure is data", not "infrastructure is code".
+
+> Each step is "idempotent" (as you will may remember from Puppet or Chef), meaning that only changes that need to be made actually get made.
+
+---
+
+# eiitp
+
+- local machine only
+- keep the same packages
+- run _secret_ stuff
+
+---
+
+# Playbooks
+
+
+
+
+    </textarea>
+    <script src="./src/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
