@@ -9,47 +9,148 @@
       @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
 
       body { font-family: 'Droid Serif'; }
+
       h1, h2, h3 {
         font-family: 'Yanone Kaffeesatz';
-        font-weight: normal;
+        font-weight: 400;
+        margin: 5px;
       }
+      h1 { font-size: 4em; }
+      h2 { font-size: 2.3em; }
+      h3 { font-size: 1.6em; }
+      body { font-size: 1.5em; }
+
       .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+
+      .bg-blue {
+        background: #6052DF;
+      }
+      .bg-dark {
+       color: white;
+        text-shadow: 0 0 20px #333;
+      }
+
     </style>
   </head>
   <body>
     <textarea id="source">
 
-class: center, middle
+name: inverse
+class: center, middle, bg-blue, bg-dark
+layout: true
+
+---
 
 # Everybody is in the place?! Let's go!
 
 ---
 
-# Agenda
-
-1. A bit of history
-2. Ansible
-3. eiitp
-
+## Devops Day
+## Salvador 2017
 
 ---
 
-# A bit of history
+layout: false
+
+## About me
+
+- [Mauricio Vieira](http://mauriciovieira.net) - since 1981 ❤️️ Salvador/BA
+
+- Member of [LinguÁgil Group](http://linguagil.com.br) 💬
 
 ???
 
-- IM/UFBA - shell script
-- SaferNet / capistrano
-- SERPRO
-- Thoughtworks - chef? or Puppet
-- Codeminer42 - chefsolo
-- Dafiti - vagrant for local / dunno on premises
-- Voxy - ansible for pairing stations / puppet on the servers
-- Other projects: docker
+- LinguÁgil: Next edition on March/2018
+
+--
+
+- Sysadmin intern at IM/UFBA (2000) and Unimed Metropolitana (2001)
+
+???
+
+- IM and Unimetro: Shell script, linux, freebsd. ad hoc
+
+--
+
+- Sysadmin volunteering group of IM/UFBA - GAVRI-IM (2001 - 2004)
+
+???
+
+- GAVRI-IM: some attempts to automate linux clients, no reusable solution.
+
+--
+
+- MSc. at UFRN (2005 - 2007)
+
+???
+
+- DIMAT/UFRN: shell script, subversion, Makefiles. Gonzagão server. almost everything manual.
+
+--
+
+- SaferNet (2007 - 2009)
+
+???
+
+- SaferNet: Introduced to capistrano, solution to deploy apps by pushing code and running specific tasks
+
+--
+
+- SERPRO (2010 - 2012)
+
+???
+
+- SERPRO: (almost) Complete separation between infrastructure people and engineering people. CMMi
+
+--
+
+- Thoughtworks (2012 - 2013)
+
+???
+
+- Thoughtworks: puppet. everybody has access to the servers through jump-box
+
+--
+
+- Dafiti (2013 - 2014)
+
+???
+
+- Dafiti - first contact with docker. vagrant for local / don't remember what ran on premises. dev people deployed.
+
+--
+
+- Omnicode Solutions (2015 - ...) 😎
+
+???
+
+- My Legal Person, other configuration management solutions like chef
+
+--
+
+- Voxy (2015 - 2017)
+
+???
+
+- Voxy: ansible for pairing stations, puppet (the wrong way) for servers, now moving back to salt (similar to ansible)
+
+--
+
+- APInf (2017)
+
+???
+
+- docker, but just for deployment. nobody uses in development, it seems.
 
 ---
 
-# Ansible
+template: inverse
+
+## Ansible
+
+---
+
+## Concepts
 
 - playbooks
 - inventory
@@ -66,18 +167,87 @@ http://highscalability.com/blog/2012/4/18/ansible-a-simple-model-driven-configur
 
 ---
 
-# eiitp
+## https://github.com/mauriciovieira/eiitp
 
-- local machine only
-- keep the same packages
-- run _secret_ stuff
+```bash
+lets:
+  @echo 'Is ansible in the place?'
+  which ansible || brew install ansible
+
+go:
+  @echo "Let's go!"
+  ansible-playbook start.yaml
+```
+
+### Execution
+
+```bash
+$ alias eiitp=make
+$ eiitp lets go
+Is ansible in the place?
+which ansible || brew install ansible
+/usr/local/bin/ansible
+Let's go!
+ansible-playbook start.yaml
+
+PLAY [all] ************************************************************************************************************************************************************************
+
+TASK [Gathering Facts] ************************************************************************************************************************************************************
+ok: [localhost]
+[...]
+```
 
 ---
 
-# Playbooks
+## ansible.cfg
 
+```bash
+[defaults]
+inventory = ./inventory
+roles_path = ./roles/
+```
 
+## inventory
 
+```bash
+[user]
+localhost              ansible_connection=local
+```
+
+---
+
+## start.yaml
+
+```yaml
+---
+- hosts: all
+
+- include: playbooks/taps.yaml
+- include: playbooks/desktop.yaml
+- include: playbooks/terminal.yaml
+- include: playbooks/aliases.yaml
+```
+
+---
+
+## playbooks/taps.yaml
+
+```yaml
+---
+- name: Setup homebrew taps
+  hosts: all
+
+  vars:
+    taps:
+      - caskroom/versions
+      - homebrew/versions
+      - thoughtbot/formulae
+
+  tasks:
+    - name: Add Homebrew taps
+      homebrew_tap: name={{ item }} state=present
+      with_items: "{{ taps }}"
+```
 
     </textarea>
     <script src="./src/remark-latest.min.js">
