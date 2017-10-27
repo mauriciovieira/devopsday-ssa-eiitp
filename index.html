@@ -52,7 +52,7 @@ layout: true
 
 layout: false
 
-## About me
+## About me (my story with configuration management)
 
 - [Mauricio Vieira](http://mauriciovieira.net) - since 1981 ❤️️ Salvador/BA
 
@@ -148,14 +148,14 @@ template: inverse
 
 ## Ansible
 
+
 ---
 
-## Concepts
+class: center, middle
 
-- playbooks
-- inventory
-- hosts
-- roles
+## Configuration management
+
+### "infrastructure is data" != "infrastructure is code"
 
 ???
 
@@ -164,6 +164,65 @@ http://highscalability.com/blog/2012/4/18/ansible-a-simple-model-driven-configur
 > One of the main goals for Playbooks is to keep them free of programming-like syntax and nesting, so they are easy to review and audit. Again, the motive behind Ansible is "infrastructure is data", not "infrastructure is code".
 
 > Each step is "idempotent" (as you will may remember from Puppet or Chef), meaning that only changes that need to be made actually get made.
+
+--
+
+#### Python
+#### yaml
+#### Jinja2
+
+---
+
+## Pervasive
+
+- available on OS packages
+- pip
+- source
+
+## Powerful
+
+- Multi-tier deployment
+- Networking / Operational System management
+- Workflow orchestration
+
+## Agentless
+
+- Uses OpenSSH & WinRM
+- No more worrying about agents
+
+## Batteries included
+
+- more than 450 core modules
+
+---
+
+## Inventories
+
+```bash
+[loadbalancer]
+lb01
+
+[webserver]
+app01
+app02
+
+[database]
+db01
+
+[control]
+control ansible_connection=local
+```
+
+---
+
+## Playbooks
+
+
+---
+layout: inverse
+
+## Everybody is in the place?! Let's go!
+
 
 ---
 
@@ -214,8 +273,6 @@ roles_path = ./roles/
 localhost              ansible_connection=local
 ```
 
----
-
 ## start.yaml
 
 ```yaml
@@ -236,24 +293,173 @@ localhost              ansible_connection=local
 ---
 - name: Setup homebrew taps
   hosts: all
-
   vars:
     taps:
       - caskroom/versions
       - homebrew/versions
       - thoughtbot/formulae
-
   tasks:
     - name: Add Homebrew taps
       homebrew_tap: name={{ item }} state=present
       with_items: "{{ taps }}"
 ```
 
+### Execution
+
+```bash
+$ ansible-playbook playbooks/taps.yaml
+PLAY [Setup homebrew taps] ******************************************
+
+TASK [Gathering Facts] **********************************************
+ok: [localhost]
+
+TASK [Add Homebrew taps] ********************************************
+ok: [localhost] => (item=caskroom/versions)
+ok: [localhost] => (item=homebrew/versions)
+ok: [localhost] => (item=thoughtbot/formulae)
+
+PLAY RECAP **********************************************************
+localhost                  : ok=2    changed=0    unreachable=0    failed=0
+```
+
+---
+
+## playbooks/desktop.yaml
+
+```yaml
+---
+- name: Install desktop environment
+  hosts: all
+
+  vars:
+    packages:
+      - macvim
+
+    cask_packages:
+      - adobe-acrobat-reader
+      - electrum
+      - firefox
+      - google-chrome
+      - iterm2
+      - screenhero
+      - shiftit
+      - skype
+      - telegram
+      - visual-studio-code
+
+    unwanted_packages:
+      - evernote
+
+  tasks:
+    - name: Install Homebrew packages
+      homebrew: name={{ item }} state=latest
+      with_items: "{{ packages }}"
+
+    - name: Uninstall Homebrew Cask packages
+      homebrew: name={{ item }} state=absent
+      with_items: "{{ unwanted_packages }}"
+```
+
+---
+
+## playbooks/terminal.yaml
+
+```yaml
+---
+- name: Install terminal environment
+  hosts: all
+
+  vars:
+    topsecret_repo: "git@gitlab.com:mauriciovieira/top-secret.git"
+    topsecret_path: "~/Repositories/gitlab.com/mauriciovieira/top-secret"
+    vscode_settings: "templates/Library/ApplicationSupport/Code/User/settings.json"
+    vscode_settings_path: "~/Library/Application Support/Code/User/"
+    screenshots_path: "~/Pictures/Screenshots"
+
+    packages:
+      - ag
+      - docker-compose
+      - docker-machine
+      - [...]
+      - jq
+      - mosh
+      - parity
+      - passpie
+      - pyenv
+      - [ ... ]
+      - wget
+      - yarn
+
+    cask_packages:
+      - java
+      - ngrok
+      - virtualbox
+```
+---
+
+## playbooks/terminal.yaml (cont. )
+
+```yaml
+---
+    rubygems:
+      - travis
+
+  tasks:
+    - name: Ensure {{ topsecret_path }} exists
+      file: path={{ topsecret_path }} state=directory
+
+    - name: Clone / update top-secret repository
+      git: repo={{ topsecret_repo }} dest="{{ topsecret_path }}" version=master
+
+    - name: Install top-secret stuff
+      shell: chdir="{{ topsecret_path }}" make install
+
+    - name: brew packages, cask packages
+      homebrew/homebrew_cask, etc.
+
+    - name: Install ruby gems
+      gem: name={{ item }} state=present
+      with_items: "{{ rubygems }}"
+
+    - name: Ensure {{ screenshots_path }} exists
+      file: path={{ screenshots_path }} state=directory
+
+    - name: Set screenshots location
+      shell: defaults write com.apple.screencapture location {{ screenshots_path }}
+
+    - name: Install vscode settings
+      copy: src="{{ vscode_settings }}" dest="{{ vscode_settings_path }}" mode=0640
+```
+
+---
+
+## playbooks/aliases.yaml
+
+```yaml
+---
+- name: Install aliases
+  hosts: all
+  vars:
+    aliases: "templates/shell/aliases.zsh"
+    aliases_path: "~/.zsh.after/"
+
+  tasks:
+    - name: Ensure {{ aliases_path }} exists
+      file: path={{ aliases_path }} state=directory
+
+    - name: Install aliases
+      copy: src="{{ aliases }}" dest="{{ aliases_path }}" mode=644
+```
+
+---
+
     </textarea>
     <script src="./src/remark-latest.min.js">
     </script>
     <script>
-      var slideshow = remark.create();
+      var slideshow = remark.create({
+        highlightStyle: 'tomorrow'
+      });
     </script>
   </body>
 </html>
