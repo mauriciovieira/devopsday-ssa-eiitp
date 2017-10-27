@@ -178,20 +178,27 @@ http://highscalability.com/blog/2012/4/18/ansible-a-simple-model-driven-configur
 - pip
 - source
 
+--
+
 ## Powerful
 
 - Multi-tier deployment
 - Networking / Operational System management
 - Workflow orchestration
 
+--
+
 ## Agentless
 
 - Uses OpenSSH & WinRM
 - No more worrying about agents
 
+--
+
 ## Batteries included
 
 - more than 450 core modules
+- mentions in [octoverse](https://octoverse.github.com) since first release
 
 ---
 
@@ -211,6 +218,29 @@ db01
 [control]
 control ansible_connection=local
 ```
+
+---
+
+## Standalone commands
+
+### Ping (uses SSH, not ICMP)
+
+```bash
+$ ansible all -m ping
+localhost | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+
+```
+
+### Get servers information
+```bash
+$ ansible all -m command -a hostname
+localhost | SUCCESS | rc=0 >>
+pandora.local
+```
+
 
 ---
 
