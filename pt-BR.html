@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Everybody is in the place?! Let's go!</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin: 5px;
+      }
+      h1 { font-size: 4em; }
+      h2 { font-size: 2.3em; }
+      h3 { font-size: 1.6em; }
+      body { font-size: 1.5em; }
+
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+
+      .bg-blue {
+        background: #6052DF;
+      }
+      .bg-dark {
+       color: white;
+        text-shadow: 0 0 20px #333;
+      }
+
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+name: inverse
+class: center, middle, bg-blue, bg-dark
+layout: true
+
+---
+
+# Está todo mundo aí?! Bó nessa!
+
+---
+
+## Devops Day
+## Salvador 2017
+
+---
+
+layout: false
+
+## Sobre mim
+
+- [Mauricio Vieira](http://mauriciovieira.net) - desde 1981 ❤️️ Salvador/BA
+
+- Membro do [Grupo LinguÁgil](http://linguagil.com.br) 💬
+
+---
+
+template: inverse
+
+## Ansible
+
+---
+
+class: center, middle
+
+## Gestão de configuração
+
+### "infrastrutura são dados" != "infrastrutura é código"
+
+???
+
+http://highscalability.com/blog/2012/4/18/ansible-a-simple-model-driven-configuration-management-and-c.html
+
+> One of the main goals for Playbooks is to keep them free of programming-like syntax and nesting, so they are easy to review and audit. Again, the motive behind Ansible is "infrastructure is data", not "infrastructure is code".
+
+> Each step is "idempotent" (as you will may remember from Puppet or Chef), meaning that only changes that need to be made actually get made.
+
+--
+
+#### Python
+#### yaml
+#### Jinja2
+
+---
+
+## Pervasivo
+
+- disponível via pacotes do seu Sistema Operacional preferido
+- pypi
+- código-fonte (GPL-v3.0)
+
+--
+
+## Poderoso
+
+- Gestão de Sistema Operacional, Rede
+- Implantação multi-camadas
+- Orquestração de fluxo de trabalho (_workflow_)
+
+--
+
+## Sem agentes
+
+- Usa OpenSSH & WinRM
+- Não há por que se preocupar com agentes clientes, bancos de dados no servidor
+
+--
+
+## Baterias inclusas
+
+- mais de 450 módulos no núcleo (_core modules_)
+- menções no [octoverse](https://octoverse.github.com) desde o primeiro lançamento (2012)
+
+---
+
+## Inventories (inventários)
+
+```bash
+[loadbalancer]
+lb01
+
+[webserver]
+app01
+app02
+
+[database]
+db01
+
+[control]
+control ansible_connection=local
+```
+
+--
+
+## Dynamic Inventories (inventários dinâmicos)
+
+- EC2, OpenStack, Rackspace
+- Qualquer programa executável que consiga emitir JSON
+- plugins core/examples estão em Python
+
+---
+
+## Comandos
+
+### Ping
+
+```bash
+$ ansible all -m ping
+localhost | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+
+```
+
+???
+
+- Ansible tasks uses the modules
+
+--
+
+### Informações dos servidores
+
+```bash
+$ ansible all -m command -a hostname
+localhost | SUCCESS | rc=0 >>
+pandora.local
+```
+
+--
+
+### Outras tarefas ad-hoc
+
+```
+$ ansible cluster01 -m service -a "name=memcached state=restarted"
+$ ansible cluster01 -m shell -a "/sbin/reboot"
+```
+
+---
+
+## Playbooks
+
+- Arquivos YAML.
+- Descrevem o estado desejado
+- Ordem de execução previsível
+
+--
+
+### Ex. monitoramento em red-hat
+
+```
+# tasks:
+
+- name: install gmond
+  action: yum pkg=ganglia-gmond state=installed
+
+- name: configure gmond
+  action: template src=templates/etc/ganglia/gmond.conf \
+dest=/etc/ganglia/gmond.conf owner=root group=root
+  notify:
+      - restart gmond
+
+- name: ensure ganglia is running
+  action: service name=gmond state=running
+
+# handlers
+- name: restart gmond
+  action: service name=gmond state=restarted
+```
+
+???
+
+http://highscalability.com/blog/2012/4/18/ansible-a-simple-model-driven-configuration-management-and-c.html
+
+---
+
+template: inverse
+
+## Everybody is in the place?! Let's go!
+
+---
+
+## https://github.com/mauriciovieira/eiitp
+
+```bash
+$ cat Makefile
+lets:
+  @echo 'Is ansible in the place?'
+  which ansible || brew install ansible
+
+go:
+  @echo "Let's go!"
+  ansible-playbook start.yaml
+```
+
+--
+
+### Execução
+
+```bash
+$ alias eiitp=make
+$ eiitp lets go
+Is ansible in the place?
+which ansible || brew install ansible
+/usr/local/bin/ansible
+Let's go!
+ansible-playbook start.yaml
+
+PLAY [all] ************************************************************************************************************************************************************************
+
+TASK [Gathering Facts] ************************************************************************************************************************************************************
+ok: [localhost]
+[...]
+```
+
+---
+
+## ansible.cfg
+
+```bash
+[defaults]
+inventory = ./inventory
+roles_path = ./roles/
+```
+
+--
+
+## inventory
+
+```bash
+[user]
+localhost              ansible_connection=local
+```
+
+--
+
+## start.yaml
+
+```yaml
+---
+- hosts: all
+
+- include: playbooks/taps.yaml
+- include: playbooks/desktop.yaml
+- include: playbooks/terminal.yaml
+- include: playbooks/aliases.yaml
+```
+
+---
+
+## playbooks/taps.yaml
+
+```yaml
+---
+- name: Setup homebrew taps
+  hosts: all
+  vars:
+    taps:
+      - caskroom/versions
+      - homebrew/versions
+      - thoughtbot/formulae
+  tasks:
+    - name: Add Homebrew taps
+      homebrew_tap: name={{ item }} state=present
+      with_items: "{{ taps }}"
+```
+
+--
+
+### Execução
+
+```bash
+$ ansible-playbook playbooks/taps.yaml
+PLAY [Setup homebrew taps] ******************************************
+
+TASK [Gathering Facts] **********************************************
+ok: [localhost]
+
+TASK [Add Homebrew taps] ********************************************
+ok: [localhost] => (item=caskroom/versions)
+ok: [localhost] => (item=homebrew/versions)
+ok: [localhost] => (item=thoughtbot/formulae)
+
+PLAY RECAP **********************************************************
+localhost                  : ok=2    changed=0    unreachable=0    failed=0
+```
+
+---
+
+## playbooks/desktop.yaml
+
+```yaml
+---
+- name: Install desktop environment
+  hosts: all
+
+  vars:
+    packages:
+      - macvim
+
+    cask_packages:
+      - adobe-acrobat-reader
+      - electrum
+      - firefox
+      - google-chrome
+      - iterm2
+      - screenhero
+      - shiftit
+      - skype
+      - telegram
+      - visual-studio-code
+
+    unwanted_packages:
+      - evernote
+
+  tasks:
+    - name: Install Homebrew packages
+      homebrew: name={{ item }} state=latest
+      with_items: "{{ packages }}"
+
+    - name: Uninstall Homebrew Cask packages
+      homebrew: name={{ item }} state=absent
+      with_items: "{{ unwanted_packages }}"
+```
+
+---
+
+## playbooks/terminal.yaml
+
+```yaml
+---
+- name: Install terminal environment
+  hosts: all
+
+  vars:
+    topsecret_repo: "git@gitlab.com:mauriciovieira/top-secret.git"
+    topsecret_path: "~/Repositories/gitlab.com/mauriciovieira/top-secret"
+    vscode_settings: "templates/Library/ApplicationSupport/Code/User/settings.json"
+    vscode_settings_path: "~/Library/Application Support/Code/User/"
+    screenshots_path: "~/Pictures/Screenshots"
+
+    packages:
+      - ag
+      - docker-compose
+      - docker-machine
+      - [...]
+      - jq
+      - mosh
+      - parity
+      - passpie
+      - pyenv
+      - [ ... ]
+      - wget
+      - yarn
+
+    cask_packages:
+      - java
+      - ngrok
+      - virtualbox
+```
+---
+
+## playbooks/terminal.yaml (cont. )
+
+```yaml
+---
+    rubygems:
+      - travis
+
+  tasks:
+    - name: Ensure {{ topsecret_path }} exists
+      file: path={{ topsecret_path }} state=directory
+
+    - name: Clone / update top-secret repository
+      git: repo={{ topsecret_repo }} dest="{{ topsecret_path }}" version=master
+
+    - name: Install top-secret stuff
+      shell: chdir="{{ topsecret_path }}" make install
+
+    - name: brew packages, cask packages
+      homebrew/homebrew_cask, etc.
+
+    - name: Install ruby gems
+      gem: name={{ item }} state=present
+      with_items: "{{ rubygems }}"
+
+    - name: Ensure {{ screenshots_path }} exists
+      file: path={{ screenshots_path }} state=directory
+
+    - name: Set screenshots location
+      shell: defaults write com.apple.screencapture location {{ screenshots_path }}
+
+    - name: Install vscode settings
+      copy: src="{{ vscode_settings }}" dest="{{ vscode_settings_path }}" mode=0640
+```
+
+---
+
+## playbooks/aliases.yaml
+
+```yaml
+---
+- name: Install aliases
+  hosts: all
+  vars:
+    aliases: "templates/shell/aliases.zsh"
+    aliases_path: "~/.zsh.after/"
+
+  tasks:
+    - name: Ensure {{ aliases_path }} exists
+      file: path={{ aliases_path }} state=directory
+
+    - name: Install aliases
+      copy: src="{{ aliases }}" dest="{{ aliases_path }}" mode=644
+```
+
+---
+
+template: inverse
+
+# Questions?
+
+    </textarea>
+    <script src="./src/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create({
+        highlightStyle: 'tomorrow'
+      });
+    </script>
+  </body>
+</html>
