@@ -41,7 +41,7 @@ layout: true
 
 ---
 
-# Está todo mundo aí?! Bó nessa!
+# Everybody is in the place?! Let's go!
 
 ---
 
@@ -52,11 +52,95 @@ layout: true
 
 layout: false
 
-## Sobre mim
+## About me (my story with configuration management)
 
-- [Mauricio Vieira](http://mauriciovieira.net) - desde 1981 ❤️️ Salvador/BA
+- [Mauricio Vieira](http://mauriciovieira.net) - since 1981 ❤️️ Salvador/BA
 
-- Membro do [Grupo LinguÁgil](http://linguagil.com.br) 💬
+- Member of [LinguÁgil Group](http://linguagil.com.br) 💬
+
+???
+
+- LinguÁgil: Next edition on March/2018
+
+--
+
+- Sysadmin intern at IM/UFBA (2000) and Unimed Metropolitana (2001)
+
+???
+
+- IM and Unimetro: Shell script, linux, freebsd. ad hoc
+
+--
+
+- Sysadmin volunteering group of IM/UFBA - GAVRI-IM (2001 - 2004)
+
+???
+
+- GAVRI-IM: some attempts to automate linux clients, no reusable solution.
+
+--
+
+- MSc. at UFRN (2005 - 2007)
+
+???
+
+- DIMAT/UFRN: shell script, subversion, Makefiles. Gonzagão server. almost everything manual.
+
+--
+
+- SaferNet (2007 - 2009)
+
+???
+
+- SaferNet: Introduced to capistrano, solution to deploy apps by pushing code and running specific tasks
+
+--
+
+- SERPRO (2010 - 2012)
+
+???
+
+- SERPRO: (almost) Complete separation between infrastructure people and engineering people. CMMi
+
+--
+
+- Thoughtworks (2012 - 2013)
+
+???
+
+- Thoughtworks: puppet. everybody has access to the servers through jump-box
+
+--
+
+- Dafiti (2013 - 2014)
+
+???
+
+- Dafiti - first contact with docker. vagrant for local / don't remember what ran on premises. dev people deployed.
+
+--
+
+- Omnicode Solutions (2015 - ...) 😎
+
+???
+
+- My Legal Person, other configuration management solutions like chef
+
+--
+
+- Voxy (2015 - 2017)
+
+???
+
+- Voxy: ansible for pairing stations, puppet (the wrong way) for servers, now moving back to salt (similar to ansible)
+
+--
+
+- APInf (2017)
+
+???
+
+- docker, but just for deployment. nobody uses in development, it seems.
 
 ---
 
@@ -68,9 +152,9 @@ template: inverse
 
 class: center, middle
 
-## Gestão de configuração
+## Configuration management
 
-### "infrastrutura são dados" != "infrastrutura é código"
+### "infrastructure is data" != "infrastructure is code"
 
 ???
 
@@ -88,37 +172,37 @@ http://highscalability.com/blog/2012/4/18/ansible-a-simple-model-driven-configur
 
 ---
 
-## Pervasivo
+## Pervasive
 
-- disponível via pacotes do seu Sistema Operacional preferido
-- pypi
-- código-fonte (GPL-v3.0)
-
---
-
-## Poderoso
-
-- Gestão de Sistema Operacional, Rede
-- Implantação multi-camadas
-- Orquestração de fluxo de trabalho (_workflow_)
+- available on OS packages
+- pip
+- source
 
 --
 
-## Sem agentes
+## Powerful
 
-- Usa OpenSSH & WinRM
-- Não há por que se preocupar com agentes clientes, bancos de dados no servidor
+- Multi-tier deployment
+- Networking / Operational System management
+- Workflow orchestration
 
 --
 
-## Baterias inclusas
+## Agentless
 
-- mais de 450 módulos no núcleo (_core modules_)
-- menções no [octoverse](https://octoverse.github.com) desde o primeiro lançamento (2012)
+- Uses OpenSSH & WinRM
+- No more worrying about agents
+
+--
+
+## Batteries included
+
+- more than 450 core modules
+- mentions in [octoverse](https://octoverse.github.com) since first release
 
 ---
 
-## Inventories (inventários)
+## Inventories
 
 ```bash
 [loadbalancer]
@@ -137,17 +221,17 @@ control ansible_connection=local
 
 --
 
-## Dynamic Inventories (inventários dinâmicos)
+## Dynamic Inventories
 
 - EC2, OpenStack, Rackspace
-- Qualquer programa executável que consiga emitir JSON
-- plugins core/examples estão em Python
+- Any executable program that can emit json
+- core/examples plugins are all Python
 
 ---
 
-## Comandos
+## Commands
 
-### Ping
+### Ping (uses SSH, not ICMP)
 
 ```bash
 $ ansible all -m ping
@@ -158,23 +242,14 @@ localhost | SUCCESS => {
 
 ```
 
-???
-
-- Ansible tasks uses the modules
-
---
-
-### Informações dos servidores
-
+### Get servers information
 ```bash
 $ ansible all -m command -a hostname
 localhost | SUCCESS | rc=0 >>
 pandora.local
 ```
 
---
-
-### Outras tarefas ad-hoc
+### Other adhoc tasks
 
 ```
 $ ansible cluster01 -m service -a "name=memcached state=restarted"
@@ -185,13 +260,13 @@ $ ansible cluster01 -m shell -a "/sbin/reboot"
 
 ## Playbooks
 
-- Arquivos YAML.
-- Descrevem o estado desejado
-- Ordem de execução previsível
+- YAML Files.
+- Describe the desired state
+- Predictable order of execution
 
 --
 
-### Ex. monitoramento em red-hat
+### E.g. monitoring red-hat
 
 ```
 # tasks:
@@ -238,9 +313,7 @@ go:
   ansible-playbook start.yaml
 ```
 
---
-
-### Execução
+### Execution
 
 ```bash
 $ alias eiitp=make
@@ -268,16 +341,12 @@ inventory = ./inventory
 roles_path = ./roles/
 ```
 
---
-
 ## inventory
 
 ```bash
 [user]
 localhost              ansible_connection=local
 ```
-
---
 
 ## start.yaml
 
@@ -310,9 +379,7 @@ localhost              ansible_connection=local
       with_items: "{{ taps }}"
 ```
 
---
-
-### Execução
+### Execution
 
 ```bash
 $ ansible-playbook playbooks/taps.yaml
