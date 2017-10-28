@@ -219,9 +219,17 @@ db01
 control ansible_connection=local
 ```
 
+--
+
+## Dynamic Inventories
+
+- EC2, OpenStack, Rackspace
+- Any executable program that can emit json
+- core/examples plugins are all Python
+
 ---
 
-## Standalone commands
+## Commands
 
 ### Ping (uses SSH, not ICMP)
 
@@ -241,6 +249,12 @@ localhost | SUCCESS | rc=0 >>
 pandora.local
 ```
 
+### Other adhoc tasks
+
+```
+$ ansible cluster01 -m service -a "name=memcached state=restarted"
+$ ansible cluster01 -m shell -a "/sbin/reboot"
+```
 
 ---
 
@@ -248,18 +262,38 @@ pandora.local
 
 - YAML Files.
 - Describe the desired state
-- Uses variables
-- Uses jinja for templating
 - Predictable order of execution
 
 --
 
-## Roles
+### E.g. monitoring red-hat
 
-- Reusable playbooks
-- [Ansible Galaxy](https://galaxy.ansible.com)
+```
+# tasks:
+
+- name: install gmond
+  action: yum pkg=ganglia-gmond state=installed
+
+- name: configure gmond
+  action: template src=templates/etc/ganglia/gmond.conf \
+dest=/etc/ganglia/gmond.conf owner=root group=root
+  notify:
+      - restart gmond
+
+- name: ensure ganglia is running
+  action: service name=gmond state=running
+
+# handlers
+- name: restart gmond
+  action: service name=gmond state=restarted
+```
+
+???
+
+http://highscalability.com/blog/2012/4/18/ansible-a-simple-model-driven-configuration-management-and-c.html
 
 ---
+
 template: inverse
 
 ## Everybody is in the place?! Let's go!
@@ -269,6 +303,7 @@ template: inverse
 ## https://github.com/mauriciovieira/eiitp
 
 ```bash
+$ cat Makefile
 lets:
   @echo 'Is ansible in the place?'
   which ansible || brew install ansible
@@ -495,7 +530,7 @@ localhost                  : ok=2    changed=0    unreachable=0    failed=0
 
 template: inverse
 
-# Thanks!
+# Questions?
 
     </textarea>
     <script src="./src/remark-latest.min.js">
